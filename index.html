@@ -17,7 +17,7 @@ h1{font-size:19px;margin:4px 0 12px}
 h2{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
 .row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
-.row.o{grid-template-columns:1.5fr 1fr 1fr 28px}
+.row.o{grid-template-columns:1.6fr 1fr 28px}
 .row.h{font-size:12px;color:var(--mut);font-weight:600}
 input{width:100%;min-width:0;padding:9px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:15px}
 input.n{text-align:center}
@@ -85,41 +85,42 @@ const $=id=>document.getElementById(id);
 const K='dsf_manpower_v1';
 const dflt=()=>({date:new Date().toISOString().slice(0,10),
  l:['01','02','03','04','05','06','07+08'].map(n=>({n,a:'',b:'',c:''})),
- o:[['Size set'],['Alter'],['Piping'],['AESN'],['Heat seal'],['Extra']].map(x=>({n:x[0],op:'',hp:''}))});
+ o:[['Size set'],['Alter'],['Piping'],['AESN'],['Heat seal'],['Extra']].map(x=>({n:x[0],v:''}))});
 let S;
 try{S=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}
 if(!S||!S.l)S=dflt();
 const num=s=>String(s||'').split('+').reduce((a,x)=>a+(parseFloat(x)||0),0);
 const pad=n=>n?String(n).padStart(2,'0'):'';
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+S.o.forEach(r=>{if(r.v===undefined){r.v=(r.op||r.hp)?String(num(r.op)+num(r.hp)):'';delete r.op;delete r.hp}});
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 function form(){
  $('lines').innerHTML='<div class="row h"><span>Line</span><span>R/M</span><span>OP/HP</span><span>HP</span><span></span></div>'+
  S.l.map((r,i)=>`<div class="row"><input data-k="l" data-i="${i}" data-f="n" value="${esc(r.n)}">`+
  ['a','b','c'].map(f=>`<input class="n" inputmode="text" data-k="l" data-i="${i}" data-f="${f}" value="${esc(r[f])}">`).join('')+
  `<button class="x" onclick="del('l',${i})">✕</button></div>`).join('');
- $('others').innerHTML='<div class="row o h"><span>Section</span><span>OP</span><span>HP</span><span></span></div>'+
+ $('others').innerHTML='<div class="row o h"><span>Section</span><span>Number</span><span></span></div>'+
  S.o.map((r,i)=>`<div class="row o"><input data-k="o" data-i="${i}" data-f="n" value="${esc(r.n)}">`+
- ['op','hp'].map(f=>`<input class="n" inputmode="text" data-k="o" data-i="${i}" data-f="${f}" value="${esc(r[f])}">`).join('')+
+ `<input class="n" inputmode="text" data-k="o" data-i="${i}" data-f="v" value="${esc(r.v)}">`+
  `<button class="x" onclick="del('o',${i})">✕</button></div>`).join('');
 }
-function addRow(k){S[k].push(k=='l'?{n:'',a:'',b:'',c:''}:{n:'',op:'',hp:''});form();draw()}
+function addRow(k){S[k].push(k=='l'?{n:'',a:'',b:'',c:''}:{n:'',v:''});form();draw()}
 function del(k,i){S[k].splice(i,1);form();draw()}
 function reset(){const d=dflt();d.l.forEach((r,i)=>r.n=S.l[i]?S.l[i].n:r.n);S=dflt();$('date').value=S.date;form();draw()}
 function calc(){
  let a=0,b=0,c=0;S.l.forEach(r=>{a+=num(r.a);b+=num(r.b);c+=num(r.c)});
- let oo=0,oh=0;S.o.forEach(r=>{oo+=num(r.op);oh+=num(r.hp)});
- const OP=a+b+oo,HP=c+oh;return{a,b,c,OP,HP,T:OP+HP,lt:a+b+c}}
+ let oo=0;S.o.forEach(r=>{oo+=num(r.v)});
+ const OP=a+b,HP=c;return{a,b,c,OP,HP,oo,T:OP+HP+oo,lt:a+b+c}}
 function fd(d){const p=(d||'').split('-');return p.length==3?`${p[2]}/${p[1]}/${p[0].slice(2)}`:''}
 function draw(){
  const t=calc();
  const lr=S.l.map(r=>{const s=num(r.a)+num(r.b)+num(r.c);return `<tr><td>${esc(r.n)}</td><td>${pad(num(r.a))}</td><td>${pad(num(r.b))}</td><td>${pad(num(r.c))}</td><td><b>${s?s:''}</b></td></tr>`}).join('');
- const or=S.o.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.op?pad(num(r.op)):''}</td><td>${r.hp?pad(num(r.hp)):''}</td></tr>`).join('');
+ const or=S.o.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.v?pad(num(r.v)):''}</td></tr>`).join('');
  $('report').innerHTML=`<h3>Today Manpower Present Status</h3><div class="s">DS Fashion Ltd &nbsp;|&nbsp; Date: ${fd(S.date)}</div>
  <table><tr><th>Line</th><th>R/M</th><th>OP/HP</th><th>HP</th><th>Total</th></tr>${lr}
  <tr class="t"><td>Total</td><td>${t.a}</td><td>${t.b}</td><td>${t.c}</td><td>${t.lt}</td></tr></table>
- <table><tr><th>Others</th><th>OP</th><th>HP</th></tr>${or}</table>
- <div class="sum"><div>OP<b>${t.OP}</b></div><div>HP<b>${t.HP}</b></div><div class="g">Grand Total<b>${t.T}</b></div></div>`;
+ <table><tr><th>Others</th><th>Number</th></tr>${or}<tr class="t"><td>Others Total</td><td>${t.oo}</td></tr></table>
+ <div class="sum"><div>OP<b>${t.OP}</b></div><div>HP<b>${t.HP}</b></div><div>Others<b>${t.oo}</b></div><div class="g">Grand Total<b>${t.T}</b></div></div>`;
  save();
 }
 document.addEventListener('input',e=>{
@@ -130,8 +131,8 @@ document.addEventListener('input',e=>{
 function text(){const t=calc();
  return `*Today Manpower Present Status*\nDS Fashion Ltd | Date: ${fd(S.date)}\n\n`+
  S.l.map(r=>`Line ${r.n}: ${num(r.a)}+${num(r.b)}+${num(r.c)} = ${num(r.a)+num(r.b)+num(r.c)}`).join('\n')+
- '\n\nOthers:\n'+S.o.filter(r=>r.op||r.hp).map(r=>`${r.n}: OP ${num(r.op)}, HP ${num(r.hp)}`).join('\n')+
- `\n\n*OP = ${t.OP}, HP = ${t.HP}, Total = ${t.T}*`}
+ '\n\nOthers:\n'+S.o.filter(r=>r.v).map(r=>`${r.n}: ${num(r.v)}`).join('\n')+
+ `\n\n*OP = ${t.OP}, HP = ${t.HP}, Others = ${t.oo}, Total = ${t.T}*`}
 async function act(mode){
  let canvas;
  try{canvas=await html2canvas($('report'),{scale:2,backgroundColor:'#ffffff'})}catch(e){alert('Image toiri hoyni, abar chesta koro.');return}
