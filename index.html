@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Daily Manpower Report</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--tx:#1a1d21;--mut:#6b7280;--bd:#d9dde3;--ac:#0f766e;--acx:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171a;--card:#1f2327;--tx:#eceff2;--mut:#9aa3ad;--bd:#343a40;--ac:#2dd4bf;--acx:#06201d}}
@@ -18,6 +17,7 @@ h2{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;lette
 .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
 .row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
 .row.o{grid-template-columns:1.6fr 1fr 28px}
+.row.o3{grid-template-columns:1.5fr 1fr 1fr 28px}
 .row.h{font-size:12px;color:var(--mut);font-weight:600}
 input{width:100%;min-width:0;padding:9px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font-size:15px}
 input.n{text-align:center}
@@ -65,6 +65,11 @@ button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weigh
   <button onclick="addRow('o')">+ Row add</button>
   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">Extra-r moto jog korte hole 12+12 likhte paro, auto jog hobe.</p>
 </div>
+<div class="card">
+  <h2>OP + HP section (Heat seal, Placket)</h2>
+  <div id="ph"></div>
+  <button onclick="addRow('p')">+ Row add</button>
+</div>
 <div class="bar" style="margin-bottom:12px">
   <button class="p" onclick="act('share')">WhatsApp / Share</button>
   <button onclick="act('dl')">PNG Download</button>
@@ -85,7 +90,8 @@ const $=id=>document.getElementById(id);
 const K='dsf_manpower_v1';
 const dflt=()=>({date:new Date().toISOString().slice(0,10),
  l:['01','02','03','04','05','06','07+08'].map(n=>({n,a:'',b:'',c:''})),
- o:[['Size set'],['Alter'],['Piping'],['AESN'],['Heat seal'],['Extra']].map(x=>({n:x[0],v:''}))});
+ o:[['Size set'],['Alter'],['Piping'],['AESN'],['Extra']].map(x=>({n:x[0],v:''})),
+ p:['Heat seal','Placket'].map(n=>({n,op:'',hp:''}))});
 let S;
 try{S=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}
 if(!S||!S.l)S=dflt();
@@ -93,8 +99,16 @@ const num=s=>String(s||'').split('+').reduce((a,x)=>a+(parseFloat(x)||0),0);
 const pad=n=>n?String(n).padStart(2,'0'):'';
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 S.o.forEach(r=>{if(r.v===undefined){r.v=(r.op||r.hp)?String(num(r.op)+num(r.hp)):'';delete r.op;delete r.hp}});
+if(!S.p){S.p=['Heat seal','Placket'].map(n=>({n,op:'',hp:''}));const h=S.o.findIndex(r=>/heat/i.test(r.n));if(h>=0){S.p[0].op=S.o[h].v;S.o.splice(h,1)}}
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function formP(){
+ $('ph').innerHTML='<div class="row o3 h"><span>Section</span><span>OP</span><span>HP</span><span></span></div>'+
+ S.p.map((r,i)=>`<div class="row o3"><input data-k="p" data-i="${i}" data-f="n" value="${esc(r.n)}">`+
+ ['op','hp'].map(f=>`<input class="n" inputmode="text" data-k="p" data-i="${i}" data-f="${f}" value="${esc(r[f])}">`).join('')+
+ `<button class="x" onclick="del('p',${i})">✕</button></div>`).join('');
+}
 function form(){
+ formP();
  $('lines').innerHTML='<div class="row h"><span>Line</span><span>R/M</span><span>OP/HP</span><span>HP</span><span></span></div>'+
  S.l.map((r,i)=>`<div class="row"><input data-k="l" data-i="${i}" data-f="n" value="${esc(r.n)}">`+
  ['a','b','c'].map(f=>`<input class="n" inputmode="text" data-k="l" data-i="${i}" data-f="${f}" value="${esc(r[f])}">`).join('')+
@@ -104,21 +118,24 @@ function form(){
  `<input class="n" inputmode="text" data-k="o" data-i="${i}" data-f="v" value="${esc(r.v)}">`+
  `<button class="x" onclick="del('o',${i})">✕</button></div>`).join('');
 }
-function addRow(k){S[k].push(k=='l'?{n:'',a:'',b:'',c:''}:{n:'',v:''});form();draw()}
+function addRow(k){S[k].push(k=='l'?{n:'',a:'',b:'',c:''}:k=='p'?{n:'',op:'',hp:''}:{n:'',v:''});form();draw()}
 function del(k,i){S[k].splice(i,1);form();draw()}
 function reset(){const d=dflt();d.l.forEach((r,i)=>r.n=S.l[i]?S.l[i].n:r.n);S=dflt();$('date').value=S.date;form();draw()}
 function calc(){
  let a=0,b=0,c=0;S.l.forEach(r=>{a+=num(r.a);b+=num(r.b);c+=num(r.c)});
  let oo=0;S.o.forEach(r=>{oo+=num(r.v)});
- const OP=a+b,HP=c;return{a,b,c,OP,HP,oo,T:OP+HP+oo,lt:a+b+c}}
+ let po=0,ph=0;S.p.forEach(r=>{po+=num(r.op);ph+=num(r.hp)});
+ const OP=a+b+po,HP=c+ph;return{a,b,c,OP,HP,oo,po,ph,T:OP+HP+oo,lt:a+b+c}}
 function fd(d){const p=(d||'').split('-');return p.length==3?`${p[2]}/${p[1]}/${p[0].slice(2)}`:''}
 function draw(){
  const t=calc();
  const lr=S.l.map(r=>{const s=num(r.a)+num(r.b)+num(r.c);return `<tr><td>${esc(r.n)}</td><td>${pad(num(r.a))}</td><td>${pad(num(r.b))}</td><td>${pad(num(r.c))}</td><td><b>${s?s:''}</b></td></tr>`}).join('');
+ const pr=S.p.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.op?pad(num(r.op)):''}</td><td>${r.hp?pad(num(r.hp)):''}</td><td><b>${num(r.op)+num(r.hp)||''}</b></td></tr>`).join('');
  const or=S.o.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.v?pad(num(r.v)):''}</td></tr>`).join('');
  $('report').innerHTML=`<h3>Today Manpower Present Status</h3><div class="s">DS Fashion Ltd &nbsp;|&nbsp; Date: ${fd(S.date)}</div>
  <table><tr><th>Line</th><th>R/M</th><th>OP/HP</th><th>HP</th><th>Total</th></tr>${lr}
  <tr class="t"><td>Total</td><td>${t.a}</td><td>${t.b}</td><td>${t.c}</td><td>${t.lt}</td></tr></table>
+ <table><tr><th>Heat seal / Placket</th><th>OP</th><th>HP</th><th>Total</th></tr>${pr}<tr class="t"><td>Total</td><td>${t.po}</td><td>${t.ph}</td><td>${t.po+t.ph}</td></tr></table>
  <table><tr><th>Others</th><th>Number</th></tr>${or}<tr class="t"><td>Others Total</td><td>${t.oo}</td></tr></table>
  <div class="sum"><div>OP<b>${t.OP}</b></div><div>HP<b>${t.HP}</b></div><div>Others<b>${t.oo}</b></div><div class="g">Grand Total<b>${t.T}</b></div></div>`;
  save();
@@ -131,11 +148,45 @@ document.addEventListener('input',e=>{
 function text(){const t=calc();
  return `*Today Manpower Present Status*\nDS Fashion Ltd | Date: ${fd(S.date)}\n\n`+
  S.l.map(r=>`Line ${r.n}: ${num(r.a)}+${num(r.b)}+${num(r.c)} = ${num(r.a)+num(r.b)+num(r.c)}`).join('\n')+
- '\n\nOthers:\n'+S.o.filter(r=>r.v).map(r=>`${r.n}: ${num(r.v)}`).join('\n')+
+ '\n\n'+S.p.filter(r=>r.op||r.hp).map(r=>`${r.n}: OP ${num(r.op)}, HP ${num(r.hp)}, Total ${num(r.op)+num(r.hp)}`).join('\n')+'\n\nOthers:\n'+S.o.filter(r=>r.v).map(r=>`${r.n}: ${num(r.v)}`).join('\n')+
  `\n\n*OP = ${t.OP}, HP = ${t.HP}, Others = ${t.oo}, Total = ${t.T}*`}
+function cv(){
+ const t=calc(),W=420,RH=24;
+ const tb=[{h:['Line','R/M','OP/HP','HP','Total'],r:S.l.map(r=>{const s=num(r.a)+num(r.b)+num(r.c);return[r.n,pad(num(r.a)),pad(num(r.b)),pad(num(r.c)),s||'']}),t:['Total',t.a,t.b,t.c,t.lt]},
+ {h:['Heat seal / Placket','OP','HP','Total'],r:S.p.map(r=>[r.n,r.op?pad(num(r.op)):'',r.hp?pad(num(r.hp)):'',num(r.op)+num(r.hp)||'']),t:['Total',t.po,t.ph,t.po+t.ph]},
+ {h:['Others','Number'],r:S.o.map(r=>[r.n,r.v?pad(num(r.v)):'']),t:['Others Total',t.oo]}];
+ const H=62+tb.reduce((a,x)=>a+(x.r.length+2)*RH+12,0)+72;
+ const c=document.createElement('canvas');c.width=W*2;c.height=H*2;
+ const g=c.getContext('2d');g.scale(2,2);
+ g.fillStyle='#fff';g.fillRect(0,0,W,H);g.textBaseline='middle';g.textAlign='center';
+ g.fillStyle='#111';g.font='bold 17px Arial';g.fillText('Today Manpower Present Status',W/2,28);
+ g.fillStyle='#444';g.font='12px Arial';g.fillText('DS Fashion Ltd  |  Date: '+fd(S.date),W/2,48);
+ let y=62;
+ tb.forEach(T=>{
+  const n=T.h.length,w=W-32,fw=n==5?[.28,.18,.18,.18,.18]:n==4?[.4,.2,.2,.2]:[.65,.35];
+  const rows=[T.h,...T.r,T.t];
+  rows.forEach((row,ri)=>{
+   let x=16;const b=ri==0||ri==rows.length-1;
+   row.forEach((cell,ci)=>{
+    const cw=w*fw[ci];
+    g.fillStyle=ri==0?'#e8eef0':ri==rows.length-1?'#f3f3f3':'#fff';g.fillRect(x,y,cw,RH);
+    g.strokeStyle='#333';g.lineWidth=1;g.strokeRect(x,y,cw,RH);
+    g.fillStyle='#111';g.font=(b?'bold ':'')+'13px Arial';
+    g.textAlign=ci?'center':'left';g.fillText(String(cell),ci?x+cw/2:x+6,y+RH/2);
+    x+=cw});
+   y+=RH});
+  y+=12});
+ const bw=(W-32-18)/4;
+ [['OP',t.OP],['HP',t.HP],['Others',t.oo],['Grand Total',t.T]].forEach((b,i)=>{
+  const x=16+i*(bw+6),l=i==3;
+  g.fillStyle=l?'#0f766e':'#fff';g.fillRect(x,y,bw,56);
+  g.strokeStyle='#0f766e';g.lineWidth=2;g.strokeRect(x,y,bw,56);
+  g.fillStyle=l?'#fff':'#111';g.textAlign='center';g.font='12px Arial';g.fillText(b[0],x+bw/2,y+16);
+  g.font='bold 20px Arial';g.fillText(String(b[1]),x+bw/2,y+38)});
+ return c}
 async function act(mode){
  let canvas;
- try{canvas=await html2canvas($('report'),{scale:2,backgroundColor:'#ffffff'})}catch(e){alert('Image toiri hoyni, abar chesta koro.');return}
+ try{canvas=cv()}catch(e){alert('Image toiri hoyni, abar chesta koro.');return}
  const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
  const name='manpower-'+S.date+'.png';
  const url=URL.createObjectURL(blob);
