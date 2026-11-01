@@ -220,17 +220,18 @@ function reset(){
 function calc(){
  let a=0,b=0,c=0;S.l.forEach(r=>{a+=num(r.a);b+=num(r.b);c+=num(r.c)});
  let oo=0,oh=0;S.o.forEach(r=>{oo+=num(r.op);oh+=num(r.hp)});
- const OP=a+b+oo,HP=c+oh;return{a,b,c,OP,HP,T:OP+HP,lt:a+b+c}}
+ const OP=a+b+oo,HP=c+oh;return{a,b,c,OP,HP,T:OP+HP,lt:a+b+c,oo,oh}}
 function fd(d){const p=(d||'').split('-');return p.length==3?`${p[2]}/${p[1]}/${p[0].slice(2)}`:''}
 
 function draw(){
  const t=calc();
  const lr=S.l.map(r=>{const s=num(r.a)+num(r.b)+num(r.c);return `<tr><td>${esc(r.n)}</td><td>${pad(num(r.a))}</td><td>${pad(num(r.b))}</td><td>${pad(num(r.c))}</td><td><b>${s?s:''}</b></td></tr>`}).join('');
- const or=S.o.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.op?pad(num(r.op)):''}</td><td>${r.hp?pad(num(r.hp)):''}</td></tr>`).join('');
+ const or=S.o.map(r=>{const s=num(r.op)+num(r.hp);return `<tr><td>${esc(r.n)}</td><td>${r.op?pad(num(r.op)):''}</td><td>${r.hp?pad(num(r.hp)):''}</td><td><b>${s?s:''}</b></td></tr>`}).join('');
  $('report').innerHTML=`<div class="rh"><img src="${LOGO_SRC}" alt=""><h1>DS Fashion LTD</h1><div class="d"><small>Date</small><b>${fd(S.date)}</b></div></div><h3>Today Manpower Present Status</h3>
  <table><tr><th>Line</th><th>R/M</th><th>OP/HP</th><th>HP</th><th>Total</th></tr>${lr}
  <tr class="t"><td>Total</td><td>${t.a}</td><td>${t.b}</td><td>${t.c}</td><td>${t.lt}</td></tr></table>
- <table><tr><th>Others</th><th>OP</th><th>HP</th></tr>${or}</table>
+ <table><tr><th>Others</th><th>OP</th><th>HP</th><th>Total</th></tr>${or}
+ <tr class="t"><td>Total</td><td>${t.oo}</td><td>${t.oh}</td><td>${t.oo+t.oh}</td></tr></table>
  <div class="sum"><div>OP<b>${t.OP}</b></div><div>HP<b>${t.HP}</b></div><div class="g">Grand Total<b>${t.T}</b></div></div>`;
  save();
 }
@@ -252,8 +253,9 @@ function cv(){
   {h:['Line','R/M','OP/HP','HP','Total'],f:[.28,.18,.18,.18,.18],
    r:S.l.map(r=>{const s=num(r.a)+num(r.b)+num(r.c);return[r.n||'',pad(num(r.a)),pad(num(r.b)),pad(num(r.c)),s||'']}),
    t:['Total',t.a,t.b,t.c,t.lt]},
-  {h:['Others','OP','HP'],f:[.5,.25,.25],
-   r:S.o.map(r=>[r.n||'',r.op?pad(num(r.op)):'',r.hp?pad(num(r.hp)):'']),t:null}
+  {h:['Others','OP','HP','Total'],f:[.46,.18,.18,.18],
+   r:S.o.map(r=>{const s=num(r.op)+num(r.hp);return[r.n||'',r.op?pad(num(r.op)):'',r.hp?pad(num(r.hp)):'',s||'']}),
+   t:['Total',t.oo,t.oh,t.oo+t.oh]}
  ];
  const H=108+tb.reduce((a,x)=>a+(x.r.length+1+(x.t?1:0))*RH+12,0)+72;
  const c=document.createElement('canvas');c.width=W*2;c.height=H*2;
