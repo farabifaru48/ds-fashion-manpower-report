@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Daily Manpower Report</title>
+<title>DS Fashion LTD | Daily Manpower Report</title>
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--tx:#1a1d21;--mut:#6b7280;--bd:#d9dde3;--ac:#0f766e;--acx:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 :root[data-theme="light"]{--bg:#f4f5f7;--card:#fff;--tx:#1a1d21;--mut:#6b7280;--bd:#d9dde3;--ac:#0f766e;--acx:#fff}
@@ -13,8 +13,12 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transition:background .2s,color .2s}
 main{max-width:720px;margin:0 auto;padding:14px}
-header{display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0 12px}
 h1{font-size:18px;margin:0}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand img{height:46px;width:auto;flex:none;background:#fff;border-radius:8px;padding:2px}
+.brand h1{font-size:21px;font-weight:800;line-height:1.1;letter-spacing:.01em}
+.brand small{display:block;color:var(--mut);font-size:12px;margin-top:2px}
 h2{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
 .row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
@@ -31,7 +35,14 @@ button.add{width:100%;border-style:dashed;color:var(--ac);font-weight:600;margin
 .bar button{flex:1 1 140px}
 .sc{overflow-x:auto}
 #report{background:#fff;color:#111;padding:16px;width:420px;margin:0 auto;font-family:Arial,Helvetica,sans-serif}
-#report h3{margin:0;text-align:center;font-size:17px}
+#report .rh{display:flex;align-items:center;gap:10px;border-bottom:3px solid #0f766e;padding-bottom:8px;margin-bottom:10px}
+#report .rh img{height:52px;width:auto}
+#report .rh h1{margin:0;font-size:22px;font-weight:800;color:#111}
+#report .rh h1{flex:1}
+#report .rh .d{text-align:right;white-space:nowrap;line-height:1.2;color:#111}
+#report .rh .d small{display:block;font-size:11px;color:#555}
+#report .rh .d b{font-size:15px}
+#report h3{margin:0 0 10px;text-align:center;font-size:16px}
 #report .s{text-align:center;font-size:12px;color:#444;margin:2px 0 10px}
 #report table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px}
 #report th,#report td{border:1px solid #333;padding:4px 6px;text-align:center}
@@ -54,7 +65,7 @@ button.add{width:100%;border-style:dashed;color:var(--ac);font-weight:600;margin
 <body>
 <main>
 <header>
-  <h1>📋 Daily Manpower Report</h1>
+  <div class="brand"><img id="hlogo" alt="DS Fashion LTD logo"><div><h1>DS Fashion LTD</h1><small>Daily Manpower Report</small></div></div>
   <button id="theme-btn" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme"></button>
 </header>
 
@@ -115,6 +126,8 @@ button.add{width:100%;border-style:dashed;color:var(--ac);font-weight:600;margin
 const $=id=>document.getElementById(id);
 const K='dsf_manpower_v1';
 const TK='dsf_theme_mode';
+const LOGO_SRC='data:image/png;base64,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';
+const LOGO=new Image();LOGO.src=LOGO_SRC;
 
 /* Theme System */
 function getActiveTheme(){
@@ -214,7 +227,7 @@ function draw(){
  const t=calc();
  const lr=S.l.map(r=>{const s=num(r.a)+num(r.b)+num(r.c);return `<tr><td>${esc(r.n)}</td><td>${pad(num(r.a))}</td><td>${pad(num(r.b))}</td><td>${pad(num(r.c))}</td><td><b>${s?s:''}</b></td></tr>`}).join('');
  const or=S.o.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.op?pad(num(r.op)):''}</td><td>${r.hp?pad(num(r.hp)):''}</td></tr>`).join('');
- $('report').innerHTML=`<h3>Today Manpower Present Status</h3><div class="s">DS Fashion Ltd &nbsp;|&nbsp; Date: ${fd(S.date)}</div>
+ $('report').innerHTML=`<div class="rh"><img src="${LOGO_SRC}" alt=""><h1>DS Fashion LTD</h1><div class="d"><small>Date</small><b>${fd(S.date)}</b></div></div><h3>Today Manpower Present Status</h3>
  <table><tr><th>Line</th><th>R/M</th><th>OP/HP</th><th>HP</th><th>Total</th></tr>${lr}
  <tr class="t"><td>Total</td><td>${t.a}</td><td>${t.b}</td><td>${t.c}</td><td>${t.lt}</td></tr></table>
  <table><tr><th>Others</th><th>OP</th><th>HP</th></tr>${or}</table>
@@ -242,13 +255,18 @@ function cv(){
   {h:['Others','OP','HP'],f:[.5,.25,.25],
    r:S.o.map(r=>[r.n||'',r.op?pad(num(r.op)):'',r.hp?pad(num(r.hp)):'']),t:null}
  ];
- const H=62+tb.reduce((a,x)=>a+(x.r.length+1+(x.t?1:0))*RH+12,0)+72;
+ const H=108+tb.reduce((a,x)=>a+(x.r.length+1+(x.t?1:0))*RH+12,0)+72;
  const c=document.createElement('canvas');c.width=W*2;c.height=H*2;
  const g=c.getContext('2d');g.scale(2,2);
  g.fillStyle='#fff';g.fillRect(0,0,W,H);g.textBaseline='middle';g.textAlign='center';
- g.fillStyle='#111';g.font='bold 17px Arial';g.fillText('Today Manpower Present Status',W/2,28);
- g.fillStyle='#444';g.font='12px Arial';g.fillText('DS Fashion Ltd  |  Date: '+fd(S.date),W/2,48);
- let y=62;
+ let lw=0;const lh=52;
+ if(LOGO.naturalWidth){lw=lh*LOGO.naturalWidth/LOGO.naturalHeight;g.drawImage(LOGO,16,12,lw,lh)}
+ g.textAlign='left';g.fillStyle='#111';g.font='bold 22px Arial';g.fillText('DS Fashion LTD',16+lw+10,38);
+ g.textAlign='right';g.fillStyle='#555';g.font='11px Arial';g.fillText('Date',W-16,30);
+ g.fillStyle='#111';g.font='bold 15px Arial';g.fillText(fd(S.date),W-16,47);
+ g.fillStyle='#0f766e';g.fillRect(16,72,W-32,3);
+ g.textAlign='center';g.fillStyle='#111';g.font='bold 16px Arial';g.fillText('Today Manpower Present Status',W/2,92);
+ let y=108;
  tb.forEach(T=>{
   const w=W-32,rows=[T.h,...T.r];if(T.t)rows.push(T.t);
   rows.forEach((row,ri)=>{
@@ -272,6 +290,7 @@ function cv(){
  return c}
 
 async function act(mode){
+ try{await LOGO.decode()}catch(e){}
  let canvas;
  try{canvas=cv()}catch(e){alert('Image toiri hoyni, abar chesta koro.');return}
  const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
@@ -288,6 +307,7 @@ async function act(mode){
  if(mode=='dl'){try{const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){}}
 }
 
+$('hlogo').src=LOGO_SRC;
 $('date').value=S.date;form();draw();
 </script>
 <script>
