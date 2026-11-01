@@ -24,6 +24,7 @@ input{width:100%;min-width:0;padding:9px 8px;border:1px solid var(--bd);border-r
 input.n{text-align:center}
 button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:10px 12px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+button.add{width:100%;border-style:dashed;color:var(--ac);font-weight:600;margin:4px 0 8px}
 .theme-btn{padding:6px 12px;font-size:13px;border-radius:20px}
 .x{padding:4px 0;color:var(--mut);border:0;background:none}
 .bar{display:flex;gap:8px;flex-wrap:wrap}
@@ -64,14 +65,16 @@ button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weigh
 
 <div class="card">
   <h2>Line wise</h2>
+  <button class="add" onclick="addRow('l','top')">↑ Upore line add</button>
   <div id="lines"></div>
-  <button onclick="addRow('l')">+ Line add</button>
+  <button class="add" onclick="addRow('l','bottom')">↓ Niche line add</button>
 </div>
 
 <div class="card">
   <h2>Others</h2>
+  <button class="add" onclick="addRow('o','top')">↑ Upore row add</button>
   <div id="others"></div>
-  <button onclick="addRow('o')">+ Row add</button>
+  <button class="add" onclick="addRow('o','bottom')">↓ Niche row add</button>
   <p style="font-size:12px;color:var(--mut);margin:8px 0 0">Extra-r moto jog korte hole 12+12 likhte paro, auto jog hobe.</p>
 </div>
 
@@ -180,7 +183,16 @@ function form(){
  ['op','hp'].map(f=>`<input class="n" inputmode="text" data-k="o" data-i="${i}" data-f="${f}" value="${esc(r[f])}">`).join('')+
  `<button class="x" onclick="del('o',${i})">✕</button></div>`).join('');
 }
-function addRow(k){S[k].push(k=='l'?{n:'',a:'',b:'',c:''}:{n:'',op:'',hp:''});form();draw()}
+
+/* pos = 'top' (list-er shurute) ba 'bottom' (list-er shesh-e) */
+function addRow(k,pos){
+ const r=k=='l'?{n:'',a:'',b:'',c:''}:{n:'',op:'',hp:''};
+ if(pos=='top')S[k].unshift(r);else S[k].push(r);
+ form();draw();
+ const rows=$(k=='l'?'lines':'others').querySelectorAll('.row:not(.h)');
+ const t=pos=='top'?rows[0]:rows[rows.length-1];
+ if(t){t.querySelector('input').focus();t.scrollIntoView({block:'center',behavior:'smooth'})}
+}
 function del(k,i){S[k].splice(i,1);form();draw()}
 
 /* Reset: shob number faka korbe kintu nam gulo thakbe */
